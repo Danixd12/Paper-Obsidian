@@ -1092,19 +1092,17 @@ public class CraftEventFactory {
 
     private static EntityDamageEvent handleEntityDamageEvent(Entity entity, DamageSource source, Map<DamageModifier, Double> modifiers, Map<DamageModifier, Function<? super Double, Double>> modifierFunctions, boolean cancelled) {
         CraftDamageSource bukkitDamageSource = new CraftDamageSource(source);
-        final Entity damager = source.eventEntityDamager() != null ? source.eventEntityDamager() : source.getDirectEntity(); // Paper - fix DamageSource API
+        final Entity damager = source.getCustomEventDamager(); // Paper - fix DamageSource API
         if (source.is(DamageTypeTags.IS_EXPLOSION)) {
             if (damager == null) {
-                return CraftEventFactory.callEntityDamageEvent(source.eventBlockDamager(), source.causingBlockSnapshot(), entity, DamageCause.BLOCK_EXPLOSION, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
+                return CraftEventFactory.callEntityDamageEvent(source.getDirectBlock(), source.getDirectBlockState(), entity, DamageCause.BLOCK_EXPLOSION, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
             }
             DamageCause damageCause = (damager.getBukkitEntity() instanceof org.bukkit.entity.TNTPrimed) ? DamageCause.BLOCK_EXPLOSION : DamageCause.ENTITY_EXPLOSION;
             return CraftEventFactory.callEntityDamageEvent(damager, entity, damageCause, bukkitDamageSource, modifiers, modifierFunctions, cancelled, source.isCritical()); // Paper - add critical damage API
         } else if (damager != null || source.getDirectEntity() != null) {
-            DamageCause cause = DamageCause.ENTITY_ATTACK;
+            DamageCause cause = (source.isSweep()) ? DamageCause.ENTITY_SWEEP_ATTACK : DamageCause.ENTITY_ATTACK;
 
-            if (source.knownCause() != null) {
-                cause = source.knownCause();
-            } else if (damager instanceof net.minecraft.world.entity.projectile.Projectile) {
+            if (damager instanceof net.minecraft.world.entity.projectile.Projectile) {
                 if (damager.getBukkitEntity() instanceof ThrownPotion) {
                     cause = DamageCause.MAGIC;
                 } else if (damager.getBukkitEntity() instanceof Projectile) {
@@ -1128,14 +1126,12 @@ public class CraftEventFactory {
 
             return CraftEventFactory.callEntityDamageEvent(damager, entity, cause, bukkitDamageSource, modifiers, modifierFunctions, cancelled, source.isCritical()); // Paper - add critical damage API
         } else if (source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            return CraftEventFactory.callEntityDamageEvent(source.eventBlockDamager(), source.causingBlockSnapshot(), entity, DamageCause.VOID, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
+            return CraftEventFactory.callEntityDamageEvent(source.getDirectBlock(), source.getDirectBlockState(), entity, DamageCause.VOID, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
         } else if (source.is(DamageTypes.LAVA)) {
-            return CraftEventFactory.callEntityDamageEvent(source.eventBlockDamager(), source.causingBlockSnapshot(), entity, DamageCause.LAVA, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
-        } else if (source.eventBlockDamager() != null) {
+            return CraftEventFactory.callEntityDamageEvent(source.getDirectBlock(), source.getDirectBlockState(), entity, DamageCause.LAVA, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
+        } else if (source.getDirectBlock() != null) {
             DamageCause cause;
-            if (source.knownCause() != null) {
-                cause = source.knownCause();
-            } else if (source.is(DamageTypes.CACTUS) || source.is(DamageTypes.SWEET_BERRY_BUSH) || source.is(DamageTypes.STALAGMITE) || source.is(DamageTypes.FALLING_STALACTITE) || source.is(DamageTypes.FALLING_ANVIL)) {
+            if (source.is(DamageTypes.CACTUS) || source.is(DamageTypes.SWEET_BERRY_BUSH) || source.is(DamageTypes.STALAGMITE) || source.is(DamageTypes.FALLING_STALACTITE) || source.is(DamageTypes.FALLING_ANVIL)) {
                 cause = DamageCause.CONTACT;
             } else if (source.is(DamageTypes.HOT_FLOOR)) {
                 cause = DamageCause.HOT_FLOOR;
@@ -1146,15 +1142,13 @@ public class CraftEventFactory {
             } else if (source.is(DamageTypes.CAMPFIRE)) {
                 cause = DamageCause.CAMPFIRE;
             } else {
-                cause = DamageCause.CUSTOM;
+                throw new IllegalStateException(String.format("Unhandled damage of %s by %s from %s [%s]", entity, source.getDirectBlock(), source.getMsgId(), source.typeHolder().getRegisteredName()));
             }
-            return CraftEventFactory.callEntityDamageEvent(source.eventBlockDamager(), source.causingBlockSnapshot(), entity, cause, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
+            return CraftEventFactory.callEntityDamageEvent(source.getDirectBlock(), source.getDirectBlockState(), entity, cause, bukkitDamageSource, modifiers, modifierFunctions, cancelled);
         }
 
         DamageCause cause;
-        if (source.knownCause() != null) {
-            cause = source.knownCause();
-        } else if (source.is(DamageTypes.IN_FIRE)) {
+        if (source.is(DamageTypes.IN_FIRE)) {
             cause = DamageCause.FIRE;
         } else if (source.is(DamageTypes.STARVE)) {
             cause = DamageCause.STARVATION;
@@ -1166,6 +1160,10 @@ public class CraftEventFactory {
             cause = DamageCause.DROWNING;
         } else if (source.is(DamageTypes.ON_FIRE)) {
             cause = DamageCause.FIRE_TICK;
+        } else if (source.isMelting()) {
+            cause = DamageCause.MELTING;
+        } else if (source.isPoison()) {
+            cause = DamageCause.POISON;
         } else if (source.is(DamageTypes.MAGIC)) {
             cause = DamageCause.MAGIC;
         } else if (source.is(DamageTypes.FALL)) {

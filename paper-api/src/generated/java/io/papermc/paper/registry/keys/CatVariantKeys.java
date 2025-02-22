@@ -7,6 +7,7 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import net.kyori.adventure.key.Key;
 import org.bukkit.entity.Cat;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -24,6 +25,7 @@ import org.jspecify.annotations.NullMarked;
 })
 @GeneratedFrom("1.21.4")
 @NullMarked
+@ApiStatus.Experimental
 public final class CatVariantKeys {
     /**
      * {@code minecraft:all_black}

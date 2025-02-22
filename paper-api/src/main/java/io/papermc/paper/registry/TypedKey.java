@@ -11,6 +11,7 @@ import org.jspecify.annotations.NullMarked;
  *
  * @param <T> the value type for the registry
  */
+@ApiStatus.Experimental
 @NullMarked
 public sealed interface TypedKey<T> extends Key permits TypedKeyImpl {
 
@@ -38,6 +39,7 @@ public sealed interface TypedKey<T> extends Key permits TypedKeyImpl {
      * @param <T> value type
      * @return a new key for the value key and registry key
      */
+    @ApiStatus.Experimental
     static <T> TypedKey<T> create(final RegistryKey<T> registryKey, final Key key) {
         return new TypedKeyImpl<>(key, registryKey);
     }
@@ -51,7 +53,8 @@ public sealed interface TypedKey<T> extends Key permits TypedKeyImpl {
      * @return a new key for the value key and registry key
      * @see Key#key(String)
      */
-    static <T> TypedKey<T> create(final RegistryKey<T> registryKey, @KeyPattern final String key) {
+    @ApiStatus.Experimental
+    static <T> TypedKey<T> create(final RegistryKey<T> registryKey, final @KeyPattern String key) {
         return create(registryKey, Key.key(key));
     }
 }

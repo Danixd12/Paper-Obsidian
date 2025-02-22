@@ -7,6 +7,7 @@ import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Art;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -24,6 +25,7 @@ import org.jspecify.annotations.NullMarked;
 })
 @GeneratedFrom("1.21.4")
 @NullMarked
+@ApiStatus.Experimental
 public final class PaintingVariantKeys {
     /**
      * {@code minecraft:alban}
@@ -384,6 +386,7 @@ public final class PaintingVariantKeys {
      * @param key the value's key in the registry
      * @return a new typed key
      */
+    @ApiStatus.Experimental
     public static TypedKey<Art> create(final Key key) {
         return TypedKey.create(RegistryKey.PAINTING_VARIANT, key);
     }

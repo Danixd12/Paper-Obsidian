@@ -52,17 +52,17 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.PluginMessageRecipient;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.obsidian.player.IObsidianPlayerChat;
 
 /**
  * Represents a player, connected or not
  */
 @NullMarked
-public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginMessageRecipient, net.kyori.adventure.identity.Identified, net.kyori.adventure.bossbar.BossBarViewer, com.destroystokyo.paper.network.NetworkClient { // Paper
+public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginMessageRecipient, net.kyori.adventure.identity.Identified, net.kyori.adventure.bossbar.BossBarViewer, com.destroystokyo.paper.network.NetworkClient, IObsidianPlayerChat { // Paper, Obsidian
 
     // Paper start
     @Override
@@ -1061,7 +1061,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * @param items the slots to change, where the values are the items to which
      * the slot should be changed. null values will set the slot to air, empty map is not allowed
      */
-    public void sendEquipmentChange(LivingEntity entity, Map<EquipmentSlot, @Nullable ItemStack> items);
+    public void sendEquipmentChange(LivingEntity entity, Map<EquipmentSlot, ItemStack> items);
 
     // Paper start
     /**

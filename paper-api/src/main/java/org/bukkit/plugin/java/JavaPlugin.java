@@ -2,8 +2,6 @@ package org.bukkit.plugin.java;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import io.papermc.paper.command.brigadier.BasicCommand;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,8 +11,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -30,16 +26,14 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginBase;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
-import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Java plugin and its main class. It contains fundamental methods
  * and fields for a plugin to be loaded and work properly. This is an indirect
  * implementation of {@link org.bukkit.plugin.Plugin}.
  */
-@NullMarked
 public abstract class JavaPlugin extends PluginBase {
     private boolean isEnabled = false;
     private PluginLoader loader = null;
@@ -67,7 +61,7 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     @Deprecated(forRemoval = true)
-    protected JavaPlugin(final JavaPluginLoader loader, final PluginDescriptionFile description, final File dataFolder, final File file) {
+    protected JavaPlugin(@NotNull final JavaPluginLoader loader, @NotNull final PluginDescriptionFile description, @NotNull final File dataFolder, @NotNull final File file) {
         final ClassLoader classLoader = this.getClass().getClassLoader();
         if (classLoader instanceof PluginClassLoader) {
             throw new IllegalStateException("Cannot use initialization constructor at runtime");
@@ -81,6 +75,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return The folder.
      */
+    @NotNull
     @Override
     public final File getDataFolder() {
         return dataFolder;
@@ -93,6 +88,7 @@ public abstract class JavaPlugin extends PluginBase {
      * @deprecated Plugin loading now occurs at a point which makes it impossible to expose this
      * behavior. This instance will only throw unsupported operation exceptions.
      */
+    @NotNull
     @Override
     @Deprecated(forRemoval = true)
     public final PluginLoader getPluginLoader() {
@@ -104,6 +100,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return Server running this plugin
      */
+    @NotNull
     @Override
     public final Server getServer() {
         return server;
@@ -124,6 +121,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return File containing this plugin
      */
+    @NotNull
     protected File getFile() {
         return file;
     }
@@ -134,16 +132,19 @@ public abstract class JavaPlugin extends PluginBase {
      * @return Contents of the plugin.yml file
      * @deprecated No longer applicable to all types of plugins
      */
+    @NotNull
     @Override
     @Deprecated
-    public final PluginDescriptionFile getDescription() {
+    public PluginDescriptionFile getDescription() {
         return description;
     }
 
+    @NotNull
     public final io.papermc.paper.plugin.configuration.PluginMeta getPluginMeta() {
         return this.pluginMeta;
     }
 
+    @NotNull
     @Override
     public FileConfiguration getConfig() {
         if (newConfig == null) {
@@ -162,7 +163,8 @@ public abstract class JavaPlugin extends PluginBase {
      * @throws IllegalArgumentException if file is null
      * @see ClassLoader#getResourceAsStream(String)
      */
-    protected final @Nullable Reader getTextResource(String file) {
+    @Nullable
+    protected final Reader getTextResource(@NotNull String file) {
         final InputStream in = getResource(file);
 
         return in == null ? null : new InputStreamReader(in, Charsets.UTF_8);
@@ -197,7 +199,7 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     @Override
-    public void saveResource(String resourcePath, boolean replace) {
+    public void saveResource(@NotNull String resourcePath, boolean replace) {
         if (resourcePath == null || resourcePath.equals("")) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");
         }
@@ -234,8 +236,9 @@ public abstract class JavaPlugin extends PluginBase {
         }
     }
 
+    @Nullable
     @Override
-    public @Nullable InputStream getResource(String filename) {
+    public InputStream getResource(@NotNull String filename) {
         if (filename == null) {
             throw new IllegalArgumentException("Filename cannot be null");
         }
@@ -260,6 +263,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return ClassLoader holding this plugin
      */
+    @NotNull
     protected final ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -292,11 +296,11 @@ public abstract class JavaPlugin extends PluginBase {
         private static final PluginLoader INSTANCE =  net.kyori.adventure.util.Services.service(PluginLoader.class)
             .orElseThrow();
     }
-    public final void init(PluginLoader loader, Server server, PluginDescriptionFile description, File dataFolder, File file, ClassLoader classLoader) {
+    public final void init(@NotNull PluginLoader loader, @NotNull Server server, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file, @NotNull ClassLoader classLoader) {
         init(server, description, dataFolder, file, classLoader, description, com.destroystokyo.paper.utils.PaperPluginLogger.getLogger(description));
         this.pluginMeta = description;
     }
-    public final void init(Server server, PluginDescriptionFile description, File dataFolder, File file, ClassLoader classLoader, io.papermc.paper.plugin.configuration.@Nullable PluginMeta configuration, Logger logger) {
+    public final void init(@NotNull Server server, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file, @NotNull ClassLoader classLoader, @Nullable io.papermc.paper.plugin.configuration.PluginMeta configuration, @NotNull Logger logger) {
         this.loader = DummyPluginLoaderImplHolder.INSTANCE;
         this.server = server;
         this.file = file;
@@ -312,7 +316,7 @@ public abstract class JavaPlugin extends PluginBase {
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         return false;
     }
 
@@ -320,7 +324,8 @@ public abstract class JavaPlugin extends PluginBase {
      * {@inheritDoc}
      */
     @Override
-    public @Nullable List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    @Nullable
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String @NotNull [] args) {
         return null;
     }
 
@@ -332,15 +337,14 @@ public abstract class JavaPlugin extends PluginBase {
      * @param name name or alias of the command
      * @return the plugin command if found, otherwise null
      * @throws UnsupportedOperationException if this plugin is a paper plugin and the method is called in {@link #onEnable()}
-     * @see #registerCommand(String, String, Collection, BasicCommand)
      */
-    public @Nullable PluginCommand getCommand(String name) {
+    @Nullable
+    public PluginCommand getCommand(@NotNull String name) {
         if (this.isBeingEnabled && !(pluginMeta instanceof PluginDescriptionFile)) {
             throw new UnsupportedOperationException("""
                 You are trying to call JavaPlugin#getCommand on a Paper plugin during startup:
                 you are probably trying to get a command you tried to define in paper-plugin.yml.
                 Paper plugins do not support YAML-based command declarations!
-                You can use JavaPlugin#registerCommand to define commands in Paper plugins.
                 Please check the documentation for more information on how to define commands in Paper plugins: https://docs.papermc.io/paper/dev/getting-started/paper-plugins#commands
                 """);
         }
@@ -358,88 +362,6 @@ public abstract class JavaPlugin extends PluginBase {
         }
     }
 
-    /**
-     * Registers a command for this plugin. Only valid to be called inside {@link #onEnable()}.
-     *
-     * <p>Commands have certain overriding behavior:
-     * <ul>
-     *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
-     *   <li>The main command/namespaced label will override already existing commands</li>
-     * </ul>
-     *
-     * @param label        the label of the to-be-registered command
-     * @param basicCommand the basic command instance to register
-     * @see LifecycleEvents#COMMANDS
-     */
-    @ApiStatus.Experimental
-    public void registerCommand(final String label, final BasicCommand basicCommand) {
-        this.registerCommand(label, null, Collections.emptyList(), basicCommand);
-    }
-
-    /**
-     * Registers a command for this plugin. Only valid to be called inside {@link #onEnable()}.
-     *
-     * <p>Commands have certain overriding behavior:
-     * <ul>
-     *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
-     *   <li>The main command/namespaced label will override already existing commands</li>
-     * </ul>
-     *
-     * @param label        the label of the to-be-registered command
-     * @param description  the help description for the root literal node
-     * @param basicCommand the basic command instance to register
-     * @see LifecycleEvents#COMMANDS
-     */
-    @ApiStatus.Experimental
-    public void registerCommand(final String label, final @Nullable String description, final BasicCommand basicCommand) {
-        this.registerCommand(label, description, Collections.emptyList(), basicCommand);
-    }
-
-    /**
-     * Registers a command for this plugin. Only valid to be called inside {@link #onEnable()}.
-     *
-     * <p>Commands have certain overriding behavior:
-     * <ul>
-     *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
-     *   <li>The main command/namespaced label will override already existing commands</li>
-     * </ul>
-     *
-     * @param label        the label of the to-be-registered command
-     * @param aliases      a collection of aliases to register the basic command under.
-     * @param basicCommand the basic command instance to register
-     * @see LifecycleEvents#COMMANDS
-     */
-    @ApiStatus.Experimental
-    public void registerCommand(final String label, final Collection<String> aliases, final BasicCommand basicCommand) {
-        this.registerCommand(label, null, aliases, basicCommand);
-    }
-
-    /**
-     * Registers a command for this plugin. Only valid to be called inside {@link #onEnable()}.
-     *
-     * <p>Commands have certain overriding behavior:
-     * <ul>
-     *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
-     *   <li>The main command/namespaced label will override already existing commands</li>
-     * </ul>
-     *
-     * @param label        the label of the to-be-registered command
-     * @param description  the help description for the root literal node
-     * @param aliases      a collection of aliases to register the basic command under.
-     * @param basicCommand the basic command instance to register
-     * @see LifecycleEvents#COMMANDS
-     */
-    @ApiStatus.Experimental
-    public void registerCommand(final String label, final @Nullable String description, final Collection<String> aliases, final BasicCommand basicCommand) {
-        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            event.registrar().register(label, description, aliases, basicCommand);
-        });
-    }
-
     @Override
     public void onLoad() {}
 
@@ -449,13 +371,15 @@ public abstract class JavaPlugin extends PluginBase {
     @Override
     public void onEnable() {}
 
+    @Nullable
     @Override
-    public @Nullable ChunkGenerator getDefaultWorldGenerator(String worldName, @Nullable String id) {
+    public ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
         return null;
     }
 
+    @Nullable
     @Override
-    public @Nullable BiomeProvider getDefaultBiomeProvider(String worldName, @Nullable String id) {
+    public BiomeProvider getDefaultBiomeProvider(@NotNull String worldName, @Nullable String id) {
         return null;
     }
 
@@ -469,11 +393,13 @@ public abstract class JavaPlugin extends PluginBase {
         this.naggable = canNag;
     }
 
+    @NotNull
     @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return description.getFullName();
@@ -502,7 +428,8 @@ public abstract class JavaPlugin extends PluginBase {
      * @throws ClassCastException if plugin that provided the class does not
      *     extend the class
      */
-    public static <T extends JavaPlugin> T getPlugin(Class<T> clazz) {
+    @NotNull
+    public static <T extends JavaPlugin> T getPlugin(@NotNull Class<T> clazz) {
         Preconditions.checkArgument(clazz != null, "Null class cannot have a plugin");
         if (!JavaPlugin.class.isAssignableFrom(clazz)) {
             throw new IllegalArgumentException(clazz + " does not extend " + JavaPlugin.class);
@@ -530,7 +457,8 @@ public abstract class JavaPlugin extends PluginBase {
      * @throws IllegalStateException if called from the static initializer for
      *     given JavaPlugin
      */
-    public static JavaPlugin getProvidingPlugin(Class<?> clazz) {
+    @NotNull
+    public static JavaPlugin getProvidingPlugin(@NotNull Class<?> clazz) {
         Preconditions.checkArgument(clazz != null, "Null class cannot have a plugin");
         final ClassLoader cl = clazz.getClassLoader();
         if (!(cl instanceof io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader configuredPluginClassLoader)) {
@@ -544,7 +472,7 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     @Override
-    public final io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager<org.bukkit.plugin.Plugin> getLifecycleManager() {
+    public final io.papermc.paper.plugin.lifecycle.event.@NotNull LifecycleEventManager<org.bukkit.plugin.Plugin> getLifecycleManager() {
         return this.lifecycleEventManager;
     }
 }

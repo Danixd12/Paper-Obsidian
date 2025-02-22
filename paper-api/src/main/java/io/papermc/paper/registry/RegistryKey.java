@@ -1,7 +1,6 @@
 package io.papermc.paper.registry;
 
 import io.papermc.paper.datacomponent.DataComponentType;
-import io.papermc.paper.registry.tag.TagKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import net.kyori.adventure.key.Keyed;
@@ -210,6 +209,7 @@ public sealed interface RegistryKey<T> extends Keyed permits RegistryKeyImpl {
      * @param key the key of the typed key.
      * @return the constructed typed key.
      */
+    @ApiStatus.Experimental
     default TypedKey<T> typedKey(final Key key) {
         return TypedKey.create(this, key);
     }
@@ -220,29 +220,8 @@ public sealed interface RegistryKey<T> extends Keyed permits RegistryKeyImpl {
      * @param key the string representation of the key that will be passed to {@link Key#key(String)}.
      * @return the constructed typed key.
      */
-    default TypedKey<T> typedKey(@KeyPattern final String key) {
+    @ApiStatus.Experimental
+    default TypedKey<T> typedKey(final @KeyPattern String key) {
         return TypedKey.create(this, key);
-    }
-
-    /**
-     * Constructs a new {@link TagKey} for this registry given the tag key's key.
-     *
-     * @param key the key of the typed key.
-     * @return the constructed tag key.
-     */
-    @ApiStatus.Experimental
-    default TagKey<T> tagKey(final Key key) {
-        return TagKey.create(this, key);
-    }
-
-    /**
-     * Constructs a new {@link TagKey} for this registry given the tag key's key.
-     *
-     * @param key the string representation of the key that will be passed to {@link Key#key(String)}.
-     * @return the constructed tag key.
-     */
-    @ApiStatus.Experimental
-    default TagKey<T> tagKey(@KeyPattern final String key) {
-        return TagKey.create(this, key);
     }
 }

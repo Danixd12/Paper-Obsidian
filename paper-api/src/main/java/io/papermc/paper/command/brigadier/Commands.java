@@ -113,7 +113,6 @@ public interface Commands extends Registrar {
      * <p>Commands have certain overriding behavior:
      * <ul>
      *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
      *   <li>The main command/namespaced label will override already existing commands</li>
      * </ul>
      *
@@ -130,7 +129,6 @@ public interface Commands extends Registrar {
      * <p>Commands have certain overriding behavior:
      * <ul>
      *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
      *   <li>The main command/namespaced label will override already existing commands</li>
      * </ul>
      *
@@ -148,7 +146,6 @@ public interface Commands extends Registrar {
      * <p>Commands have certain overriding behavior:
      * <ul>
      *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
      *   <li>The main command/namespaced label will override already existing commands</li>
      * </ul>
      *
@@ -166,7 +163,6 @@ public interface Commands extends Registrar {
      * <p>Commands have certain overriding behavior:
      * <ul>
      *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
      *   <li>The main command/namespaced label will override already existing commands</li>
      * </ul>
      *
@@ -183,7 +179,6 @@ public interface Commands extends Registrar {
      * <p>Commands have certain overriding behavior:
      * <ul>
      *   <li>Aliases will not override already existing commands (excluding namespaced ones)</li>
-     *   <li>Aliases are <b>not</b> Brigadier redirects, they just copy the command to a different label</li>
      *   <li>The main command/namespaced label will override already existing commands</li>
      * </ul>
      *

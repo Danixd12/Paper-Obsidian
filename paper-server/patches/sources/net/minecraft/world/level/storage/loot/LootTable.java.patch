@@ -24,14 +24,13 @@
      }
  
      public void fill(Container container, LootParams params, long seed) {
--        LootContext lootContext = new LootContext.Builder(params).withOptionalRandomSeed(seed).create(this.randomSequence);
 +        // CraftBukkit start
-+        this.fill(container, params, seed == 0L ? null : RandomSource.create(seed), false);
++        this.fillInventory(container, params, seed, false);
 +    }
 +
-+    public void fill(Container container, LootParams params, RandomSource randomSource, boolean plugin) {
++    public void fillInventory(Container container, LootParams params, long seed, boolean plugin) {
 +        // CraftBukkit end
-+        LootContext lootContext = new LootContext.Builder(params).withOptionalRandomSource(randomSource).create(this.randomSequence);
+         LootContext lootContext = new LootContext.Builder(params).withOptionalRandomSeed(seed).create(this.randomSequence);
          ObjectArrayList<ItemStack> randomItems = this.getRandomItems(lootContext);
          RandomSource random = lootContext.getRandom();
 +        // CraftBukkit start

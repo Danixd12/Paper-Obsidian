@@ -1,20 +1,15 @@
 package org.bukkit.craftbukkit.entity;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.BlockCollisions;
-import net.minecraft.world.phys.AABB;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-import java.util.List;
+import org.bukkit.projectiles.ProjectileSource;
 
 public class CraftAbstractArrow extends AbstractProjectile implements AbstractArrow {
 
@@ -73,16 +68,12 @@ public class CraftAbstractArrow extends AbstractProjectile implements AbstractAr
 
     @Override
     public Block getAttachedBlock() {
-        return Iterables.getFirst(getAttachedBlocks(), null);
-    }
-
-    @Override
-    public List<Block> getAttachedBlocks() {
         if (!this.isInBlock()) {
-            return ImmutableList.of();
+            return null;
         }
 
-        return ImmutableList.copyOf(new BlockCollisions<>(this.getHandle().level(), (Entity) null, new AABB(this.getHandle().position(), this.getHandle().position()).inflate(0.06), false, (mutableBlockPos, voxelShape) -> CraftBlock.at(this.getHandle().level(), mutableBlockPos)));
+        BlockPos pos = this.getHandle().blockPosition();
+        return this.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
@@ -147,7 +138,7 @@ public class CraftAbstractArrow extends AbstractProjectile implements AbstractAr
 
     @Override
     public String toString() {
-        return "CraftAbstractArrow";
+        return "CraftArrow";
     }
 
     // Paper start

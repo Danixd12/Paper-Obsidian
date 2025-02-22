@@ -118,9 +118,9 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Effect;
-import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.Input;
 import org.bukkit.Instrument;
@@ -173,7 +173,6 @@ import org.bukkit.craftbukkit.map.CraftMapView;
 import org.bukkit.craftbukkit.map.RenderData;
 import org.bukkit.craftbukkit.potion.CraftPotionEffectType;
 import org.bukkit.craftbukkit.potion.CraftPotionUtil;
-import org.bukkit.craftbukkit.profile.CraftPlayerProfile;
 import org.bukkit.craftbukkit.scoreboard.CraftScoreboard;
 import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.craftbukkit.util.CraftLocation;
@@ -188,7 +187,6 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
 import org.bukkit.event.player.PlayerHideEntityEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 import org.bukkit.event.player.PlayerShowEntityEvent;
-import org.bukkit.event.player.PlayerSpawnChangeEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerUnregisterChannelEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -201,11 +199,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
 import net.md_5.bungee.api.chat.BaseComponent; // Spigot
+
 
 @DelegateDeserialization(CraftOfflinePlayer.class)
 public class CraftPlayer extends CraftHumanEntity implements Player {
@@ -394,6 +392,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override
     public void sendRawMessage(String message) {
         this.sendRawMessage(null, message);
+    }
+
+    @Override
+    public void sendTMessage(String message) {
+        this.sendRawMessage(null, ChatColor.translateAlternateColorCodes('&', message));
     }
 
     @Override
@@ -3544,11 +3547,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     // Paper start - entity effect API
     @Override
-    public void sendEntityEffect(final EntityEffect effect, final org.bukkit.entity.Entity target) {
-        if (this.getHandle().connection == null) {
+    public void sendEntityEffect(final org.bukkit.EntityEffect effect, final org.bukkit.entity.Entity target) {
+        if (this.getHandle().connection == null || !effect.isApplicableTo(target)) {
             return;
         }
-        Preconditions.checkArgument(effect.isApplicableTo(target), "Entity effect cannot apply to the target");
         this.getHandle().connection.send(new net.minecraft.network.protocol.game.ClientboundEntityEventPacket(((CraftEntity) target).getHandle(), effect.getData()));
     }
     // Paper end - entity effect API
@@ -3582,21 +3584,5 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         handle.containerMenu.broadcastChanges();
         return new PaperPlayerGiveResult(leftovers.build(), drops.build());
-    }
-
-    @Override
-    public float getSidewaysMovement() {
-        final boolean leftMovement = this.getHandle().getLastClientInput().left();
-        final boolean rightMovement = this.getHandle().getLastClientInput().right();
-
-        return leftMovement == rightMovement ? 0 : leftMovement ? 1 : -1;
-    }
-
-    @Override
-    public float getForwardsMovement() {
-        final boolean forwardMovement = this.getHandle().getLastClientInput().forward();
-        final boolean backwardMovement = this.getHandle().getLastClientInput().backward();
-
-        return forwardMovement == backwardMovement ? 0 : forwardMovement ? 1 : -1;
     }
 }

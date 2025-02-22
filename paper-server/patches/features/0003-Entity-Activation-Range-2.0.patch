@@ -366,7 +366,7 @@ index d95413af04121fe91ca0f3b0c70025b9808acef9..ad665c7535c615d2b03a3e7864be435f
  import org.slf4j.Logger;
  
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 8204528c26456929fdec0d8ba7a5a52128409097..01bc2d1639be9f04afc63e5841c5c99730ea37d8 100644
+index 79d23c3403efc6dbef2381a3fa5946023f862452..3b19229427d83290bba1431bee5357e2ced34f94 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -551,6 +551,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -377,8 +377,8 @@ index 8204528c26456929fdec0d8ba7a5a52128409097..01bc2d1639be9f04afc63e5841c5c997
              this.entityTickList
                  .forEach(
                      entity -> {
-@@ -980,12 +981,15 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
-         entity.totalEntityAge++; // Paper - age-like counter for all entities
+@@ -979,12 +980,15 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+         entity.tickCount++;
          profilerFiller.push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString());
          profilerFiller.incrementCounter("tickNonPassenger");
 +        final boolean isActive = io.papermc.paper.entity.activation.ActivationRange.checkIfActive(entity); // Paper - EAR 2
@@ -394,7 +394,7 @@ index 8204528c26456929fdec0d8ba7a5a52128409097..01bc2d1639be9f04afc63e5841c5c997
          }
          // Paper start - log detailed entity tick information
          } finally {
-@@ -996,7 +1000,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -995,7 +999,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          // Paper end - log detailed entity tick information
      }
  
@@ -403,7 +403,7 @@ index 8204528c26456929fdec0d8ba7a5a52128409097..01bc2d1639be9f04afc63e5841c5c997
          if (passengerEntity.isRemoved() || passengerEntity.getVehicle() != ridingEntity) {
              passengerEntity.stopRiding();
          } else if (passengerEntity instanceof Player || this.entityTickList.contains(passengerEntity)) {
-@@ -1006,12 +1010,21 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -1004,12 +1008,21 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
              ProfilerFiller profilerFiller = Profiler.get();
              profilerFiller.push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(passengerEntity.getType()).toString());
              profilerFiller.incrementCounter("tickPassenger");
@@ -476,12 +476,12 @@ index 24735284fda151414d99faad401d25ba60995f9a..23b342cc31c7e72ade0e1ccad86a9ccf
      public void tick() {
          super.tick();
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index b15420ffa1432d49aec8e91e917598bde4e94337..054ece1d539d69a4b7eec57e681179343c7e75c3 100644
+index c918c0d2c70df07bf53e490af9c233a5eab9ad52..7712f6407d2b7b5b62ec19056bad88eeefe24f9a 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -381,6 +381,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -380,6 +380,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     public boolean fixedPose = false; // Paper - Expand Pose API
      private final int despawnTime; // Paper - entity despawn time limit
-     public int totalEntityAge; // Paper - age-like counter for all entities
      public final io.papermc.paper.entity.activation.ActivationType activationType = io.papermc.paper.entity.activation.ActivationType.activationTypeFor(this); // Paper - EAR 2/tracking ranges
 +    // Paper start - EAR 2
 +    public final boolean defaultActivationState;
@@ -495,7 +495,7 @@ index b15420ffa1432d49aec8e91e917598bde4e94337..054ece1d539d69a4b7eec57e68117934
  
      public void setOrigin(@javax.annotation.Nonnull org.bukkit.Location location) {
          this.origin = location.toVector();
-@@ -414,6 +423,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -413,6 +422,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          this.position = Vec3.ZERO;
          this.blockPosition = BlockPos.ZERO;
          this.chunkPosition = ChunkPos.ZERO;
@@ -509,7 +509,7 @@ index b15420ffa1432d49aec8e91e917598bde4e94337..054ece1d539d69a4b7eec57e68117934
          SynchedEntityData.Builder builder = new SynchedEntityData.Builder(this);
          builder.define(DATA_SHARED_FLAGS_ID, (byte)0);
          builder.define(DATA_AIR_SUPPLY_ID, this.getMaxAirSupply());
-@@ -978,6 +994,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -977,6 +993,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          } else {
              this.wasOnFire = this.isOnFire();
              if (type == MoverType.PISTON) {
@@ -518,7 +518,7 @@ index b15420ffa1432d49aec8e91e917598bde4e94337..054ece1d539d69a4b7eec57e68117934
                  movement = this.limitPistonMovement(movement);
                  if (movement.equals(Vec3.ZERO)) {
                      return;
-@@ -991,6 +1009,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -990,6 +1008,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  this.stuckSpeedMultiplier = Vec3.ZERO;
                  this.setDeltaMovement(Vec3.ZERO);
              }

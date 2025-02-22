@@ -14,6 +14,7 @@ import io.papermc.paper.plugin.provider.source.DirectoryProviderSource;
 import io.papermc.paper.plugin.provider.source.FileArrayProviderSource;
 import io.papermc.paper.plugin.provider.source.FileProviderSource;
 import java.io.File;
+import org.ObsidianPluginLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -33,6 +34,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.obsidian.PluginInfo;
+import org.obsidian.ObsidianPlugin;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,6 +59,7 @@ class PaperPluginInstanceManager {
     private final Server server;
 
     private final MetaDependencyTree dependencyTree = new SimpleMetaDependencyTree(GraphBuilder.directed().build());
+    private boolean isObsidianPlugin; // Obsidian modification
 
     public PaperPluginInstanceManager(PluginManager pluginManager, CommandMap commandMap, Server server) {
         this.commandMap = commandMap;
@@ -192,6 +196,25 @@ class PaperPluginInstanceManager {
 
             JavaPlugin jPlugin = (JavaPlugin) plugin;
 
+            // Obsidian Modification
+
+            ObsidianPluginLoader obsidianPluginLoader = null;
+
+            if (jPlugin instanceof final ObsidianPlugin obsidianPlugin) {
+
+
+                if (!jPlugin.getClass().isAnnotationPresent(PluginInfo.class)) {
+                    plugin.getLogger().log(Level.WARNING, "Plugin extends ObsidianPlugin class but not PluginInfo annotation, \n " +
+                        "so it won't be loaded as an obsidian plugin.");
+                } else {
+                    this.isObsidianPlugin = true;
+
+                    obsidianPluginLoader = obsidianPlugin.getObsidianPluginLoader();
+
+                }
+
+            } // Obsidian END
+
             if (jPlugin.getClass().getClassLoader() instanceof ConfiguredPluginClassLoader classLoader) { // Paper
                 if (PaperClassLoaderStorage.instance().registerUnsafePlugin(classLoader)) {
                     this.server.getLogger().log(Level.WARNING, "Enabled plugin with unregistered ConfiguredPluginClassLoader " + plugin.getPluginMeta().getDisplayName());
@@ -199,7 +222,24 @@ class PaperPluginInstanceManager {
             } // Paper
 
             try {
+                // Obsidian Modification
+                if (isObsidianPlugin) {
+                    assert obsidianPluginLoader != null;
+                    if (!obsidianPluginLoader.pluginInitialized) {
+                        obsidianPluginLoader.initObsidianPlugin(jPlugin.getClass().getAnnotation(PluginInfo.class));
+                    }
+                } // Obsidian END
+
                 jPlugin.setEnabled(true);
+
+                // Obsidian Modification
+                if (isObsidianPlugin && isPluginEnabled(jPlugin)) {
+                    assert obsidianPluginLoader != null;
+                    if (!obsidianPluginLoader.commandManagerInitialized) {
+                        obsidianPluginLoader.initObsidianPluginCommandManager();
+                    }
+                } // Obsidian END
+
             } catch (Throwable ex) {
                 this.server.getLogger().log(Level.SEVERE, "Error occurred while enabling " + plugin.getPluginMeta().getDisplayName() + " (Is it up to date?)", ex);
                 // Paper start - Disable plugins that fail to load

@@ -19,20 +19,18 @@ import org.jspecify.annotations.NullMarked;
  * tags only point to individual entries and not other nested tags.
  * <p>
  * An example of a custom enchant being registered to the vanilla
- * {@code #minecraft:in_enchanting_table} tag:
+ * {@code #minecraft:in_enchanting_table} tag.
  * <pre>{@code
  * class YourBootstrapClass implements PluginBootstrap {
  *
- *     public static final TypedKey<Enchantment> CUSTOM_POINTY_ENCHANT = EnchantmentKeys.create(Key.key("papermc:pointy"));
- *
  *     @Override
  *     public void bootstrap(BootstrapContext context) {
- *         final LifecycleEventManager<BootstrapContext> manager = context.getLifecycleManager();
+ *         LifecycleEventManager<BootstrapContext> manager = context.getLifecycleManager();
  *         manager.registerEventHandler(LifecycleEvents.TAGS.postFlatten(RegistryKey.ENCHANTMENT), event -> {
  *             final PostFlattenTagRegistrar<Enchantment> registrar = event.registrar();
  *             registrar.addToTag(
  *                 EnchantmentTagKeys.IN_ENCHANTING_TABLE,
- *                 Set.of(CUSTOM_POINTY_ENCHANT)
+ *                 Set.of(CUSTOM_ENCHANT)
  *             );
  *         });
  *     }

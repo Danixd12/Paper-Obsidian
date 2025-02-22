@@ -31,7 +31,7 @@ public class CraftArrow extends CraftAbstractArrow implements Arrow {
 
     @Override
     public String toString() {
-        return "CraftArrow";
+        return "CraftTippedArrow";
     }
 
     @Override
